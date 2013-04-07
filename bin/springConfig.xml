@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:int-stream="http://www.springframework.org/schema/integration/stream"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans     
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+        http://www.springframework.org/schema/integration 
+        http://www.springframework.org/schema/integration/spring-integration-3.0.xsd
+        http://www.springframework.org/schema/integration/stream 
+        http://www.springframework.org/schema/integration/stream/spring-integration-stream-3.0.xsd"
+	default-merge="true" default-lazy-init="true">
+
+	<int:annotation-config />
+	<context:component-scan base-package="app.service"
+		annotation-config="true" />
+
+
+	<int:channel id="inputChannel" />
+
+	<int:channel id="recipientListChannel" />
+	<int:channel id="standardOutChannel" />
+	<int:channel id="outputChannel" />
+
+	<int:service-activator input-channel="inputChannel"
+		output-channel="recipientListChannel" ref="personService" method="processMessage"
+		id="PersonServiceActivator" />
+
+	<int:recipient-list-router input-channel="recipientListChannel">
+		<int:recipient channel="outputChannel" />
+		<int:recipient channel="standardOutChannel" />
+	</int:recipient-list-router>
+
+	<int-stream:stdout-channel-adapter
+		channel="standardOutChannel" />
+
+</beans>
